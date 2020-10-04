@@ -1,15 +1,18 @@
 {
-  "name": "web-322-app",
-  "version": "1.0.0",
-  "description": "",
-  "main": "data-service.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "author": "Seyed Mohammad ALi Lohmousavi",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.17.1"
-  }
+	"name": "web-322-app",
+	"version": "1.0.0",
+	"description": "",
+	"main": "server.js",
+	"scripts": {
+		"test": "nodemon -e js,html,css",
+		"start": "node server.js"
+	},
+	"author": "Seyed Mohammad ALi Lohmousavi",
+	"license": "ISC",
+	"dependencies": {
+		"express": "^4.17.1"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.4"
+	}
 }
