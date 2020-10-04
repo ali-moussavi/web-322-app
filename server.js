@@ -1,3 +1,15 @@
+/*********************************************************************************
+* WEB322 – Assignment 02
+* I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
+* of this assignment has been copied manually or electronically from any other source
+* (including 3rd party web sites) or distributed to other students.
+*
+* Name:Seyed Mohammad Ali Lohmousavi Student ID:159309186 Date:10/5/2020
+*
+* Online (Heroku) Link: ________________________________________________________
+*
+********************************************************************************/
+
 var HTTP_PORT = process.env.PORT || 8080;
 
 var express = require('express');

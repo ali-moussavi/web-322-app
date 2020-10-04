@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap');
+
+/* primary color: #00b894 */
+
+body {
+	font-family: 'Poppins', sans-serif;
+}
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:focus,
+.navbar-default .navbar-nav > .active > a:hover {
+	background-color: inherit;
+	border-bottom: solid 2px #00b894;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+	border-bottom: solid 2px #00b894;
+}
+
+.navbar-brand {
+	color: #00b894 !important;
+}
