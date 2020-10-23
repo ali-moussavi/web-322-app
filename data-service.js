@@ -53,6 +53,42 @@ const getEmployeeByStatus = (status) => {
 	
 }
 
+const getEmployeeByDepartment = (department) => {
+	return new Promise((resolve,reject) =>{
+		const result = employees.filter(emp => emp.department == department);
+		if (result.length) {
+			resolve(result);
+		} else {
+			reject("no results returned");
+		}
+	})
+	
+}
+
+const getEmployeeByManager = (managerNum) => {
+	return new Promise((resolve,reject) =>{
+		const result = employees.filter(emp => emp.employeeManagerNum == managerNum);
+		if (result.length) {
+			resolve(result);
+		} else {
+			reject("no results returned");
+		}
+	})
+	
+}
+
+const getEmployeeByNum = (employeeNum) => {
+	return new Promise((resolve,reject) => {
+		const result = employees.filter(emp => emp.employeeNum == employeeNum);
+		if (result.length) {
+			resolve(result);
+		} else {
+			reject("no results returned");
+		}
+	})
+	
+}
+
 const getManagers = () => {
 	return new Promise(function(resolve, reject) {
 		const managers = employees.filter((emp) => emp.isManager == true);
@@ -76,6 +112,8 @@ const getDepartments = () => {
 	});
 };
 
+
+
 const addEmployee = (employeeData) => {
 	return new Promise(function(resolve,reject){
 		if (employeeData) {
@@ -98,5 +136,8 @@ module.exports = {
 	getManagers,
 	getDepartments,
 	addEmployee,
-	getEmployeeByStatus
+	getEmployeeByStatus,
+	getEmployeeByDepartment,
+	getEmployeeByManager,
+	getEmployeeByNum
 };

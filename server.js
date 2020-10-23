@@ -83,7 +83,9 @@ app.get('/employees', (req, res) => {
 		} 
 		else if (req.query.department) {
 			resolve(dataService.getEmployeeByDepartment(req.query.department))
-		} 
+		} else if (req.query.manager) {
+			resolve(dataService.getEmployeeByManager(req.query.manager))
+		}
 		else {
 			resolve(dataService.getAllEmployees());
 		}
@@ -96,6 +98,15 @@ app.get('/employees', (req, res) => {
 		res.json(err);
 	});
 });
+
+app.get('/employee/:num', (req,res) => {
+	dataService.getEmployeeByNum(req.params.num).then((data) => {
+		res.json(data);
+	}).catch((err) => {
+		console.log(err);
+		res.status(400).json(err);
+	});
+})
 
 app.get('/images/', (req, res) => {
 	const response = {};
@@ -116,7 +127,7 @@ app.post("/images/add", upload.single("imageFile"), (req, res) => {
 
 
 app.post("/employees/add", (req, res) => {
-	console.log(req.body);
+	// console.log(req.body);
 	dataService.addEmployee(req.body).then((data)=>{
 		res.redirect('/employees')
 	}).catch((err) => {
