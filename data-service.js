@@ -41,6 +41,18 @@ const getAllEmployees = () => {
 	});
 };
 
+const getEmployeeByStatus = (status) => {
+	return new Promise((resolve,reject) =>{
+		const result = employees.filter(emp => emp.status == status);
+		if (result.length) {
+			resolve(result);
+		} else {
+			reject("no employee with this status exists");
+		}
+	})
+	
+}
+
 const getManagers = () => {
 	return new Promise(function(resolve, reject) {
 		const managers = employees.filter((emp) => emp.isManager == true);
@@ -64,11 +76,27 @@ const getDepartments = () => {
 	});
 };
 
+const addEmployee = (employeeData) => {
+	return new Promise(function(resolve,reject){
+		if (employeeData) {
+			employeeData.isManager = Boolean(employeeData.isManager);
+			employeeData.employeeNum = (employees.length)+1; 
+			employees.push(employeeData);
+			resolve();		
+		}
+		else {
+			reject("employee data was empty");
+		}
+	})
+}
+
 initialize();
 
 module.exports = {
 	initialize,
 	getAllEmployees,
 	getManagers,
-	getDepartments
+	getDepartments,
+	addEmployee,
+	getEmployeeByStatus
 };
