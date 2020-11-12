@@ -42,52 +42,48 @@ const getAllEmployees = () => {
 };
 
 const getEmployeeByStatus = (status) => {
-	return new Promise((resolve,reject) =>{
-		const result = employees.filter(emp => emp.status == status);
+	return new Promise((resolve, reject) => {
+		const result = employees.filter((emp) => emp.status == status);
 		if (result.length) {
 			resolve(result);
 		} else {
-			reject("no employee with this status exists");
+			reject('no employee with this status exists');
 		}
-	})
-	
-}
+	});
+};
 
 const getEmployeeByDepartment = (department) => {
-	return new Promise((resolve,reject) =>{
-		const result = employees.filter(emp => emp.department == department);
+	return new Promise((resolve, reject) => {
+		const result = employees.filter((emp) => emp.department == department);
 		if (result.length) {
 			resolve(result);
 		} else {
-			reject("no results returned");
+			reject('no results returned');
 		}
-	})
-	
-}
+	});
+};
 
 const getEmployeeByManager = (managerNum) => {
-	return new Promise((resolve,reject) =>{
-		const result = employees.filter(emp => emp.employeeManagerNum == managerNum);
+	return new Promise((resolve, reject) => {
+		const result = employees.filter((emp) => emp.employeeManagerNum == managerNum);
 		if (result.length) {
 			resolve(result);
 		} else {
-			reject("no results returned");
+			reject('no results returned');
 		}
-	})
-	
-}
+	});
+};
 
 const getEmployeeByNum = (employeeNum) => {
-	return new Promise((resolve,reject) => {
-		const result = employees.filter(emp => emp.employeeNum == employeeNum);
+	return new Promise((resolve, reject) => {
+		const result = employees.filter((emp) => emp.employeeNum == employeeNum);
 		if (result.length) {
 			resolve(result);
 		} else {
-			reject("no results returned");
+			reject('no results returned');
 		}
-	})
-	
-}
+	});
+};
 
 const getManagers = () => {
 	return new Promise(function(resolve, reject) {
@@ -112,21 +108,36 @@ const getDepartments = () => {
 	});
 };
 
-
-
 const addEmployee = (employeeData) => {
-	return new Promise(function(resolve,reject){
+	return new Promise(function(resolve, reject) {
 		if (employeeData) {
 			employeeData.isManager = Boolean(employeeData.isManager);
-			employeeData.employeeNum = (employees.length)+1; 
+			employeeData.employeeNum = employees.length + 1;
 			employees.push(employeeData);
-			resolve();		
+			resolve();
+		} else {
+			reject('employee data was empty');
 		}
-		else {
-			reject("employee data was empty");
+	});
+};
+
+const updateEmployee = (employeeData) => {
+	return new Promise((resolve, reject) => {
+		for (let i = 0; i < employees.length; i++) {
+			if (employees[i].employeeNum == employeeData.employeeNum) {
+				employees[i] = employeeData;
+				employees[i].isManager =
+
+						employees[i].isManager == 'on' ? true :
+						false;
+				resolve();
+				break;
+			}
 		}
-	})
-}
+
+		reject('employee not found');
+	});
+};
 
 initialize();
 
@@ -139,5 +150,6 @@ module.exports = {
 	getEmployeeByStatus,
 	getEmployeeByDepartment,
 	getEmployeeByManager,
-	getEmployeeByNum
+	getEmployeeByNum,
+	updateEmployee
 };
