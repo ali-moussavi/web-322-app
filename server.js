@@ -17,8 +17,11 @@ const dataService = require('./data-service.js');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
+const clientSessions = require('client-sessions');
+const dataServiceAuth = require('./data-service-auth');
 const options = {
 	root: path.join(__dirname)
 };
@@ -30,6 +33,29 @@ app.use(
 		extended: true
 	})
 );
+
+app.use(
+	clientSessions({
+		cookieName: 'session', // this is the object name that will be added to 'req'
+		secret: 'a6_web322', // this should be a long un-guessable string.
+		duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+		activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
+	})
+);
+
+app.use(function(req, res, next) {
+	res.locals.session = req.session;
+	next();
+});
+
+function ensureLogin(req, res, next) {
+	if (!req.session.user) {
+		res.redirect('/login');
+	} else {
+		next();
+	}
+}
+
 app.engine(
 	'.hbs',
 	exphbs({
@@ -92,21 +118,21 @@ app.get('/about', (req, res) => {
 	res.render('about', {});
 });
 
-app.get('/employees/add', (req, res) => {
+app.get('/employees/add', ensureLogin, (req, res) => {
 	dataService.getDepartments().then((data) => {
 		res.render('addEmployee', { departments: data });
 	});
 });
 
-app.get('/departments/add', (req, res) => {
+app.get('/departments/add', ensureLogin, (req, res) => {
 	res.render('addDepartment', {});
 });
 
-app.get('/images/add', (req, res) => {
+app.get('/images/add', ensureLogin, (req, res) => {
 	res.render('addImage', {});
 });
 
-app.get('/managers', (req, res) => {
+app.get('/managers', ensureLogin, (req, res) => {
 	dataService
 		.getManagers()
 		.then((managers) => {
@@ -118,7 +144,7 @@ app.get('/managers', (req, res) => {
 		});
 });
 
-app.get('/departments', (req, res) => {
+app.get('/departments', ensureLogin, (req, res) => {
 	dataService
 		.getDepartments()
 		.then((departments) => {
@@ -130,7 +156,7 @@ app.get('/departments', (req, res) => {
 		});
 });
 
-app.get('/employees', (req, res) => {
+app.get('/employees', ensureLogin, (req, res) => {
 	return new Promise(function(resolve, reject) {
 		if (req.query.status) {
 			resolve(dataService.getEmployeeByStatus(req.query.status));
@@ -155,7 +181,7 @@ app.get('/employees', (req, res) => {
 		});
 });
 
-app.get('/employee/:num', (req, res) => {
+app.get('/employee/:num', ensureLogin, (req, res) => {
 	// dataService
 	// 	.getEmployeeByNum(req.params.num)
 	// 	.then((data) => {
@@ -207,7 +233,7 @@ app.get('/employee/:num', (req, res) => {
 		});
 });
 
-app.get('/department/:num', (req, res) => {
+app.get('/department/:num', ensureLogin, (req, res) => {
 	dataService
 		.getDepartmentById(req.params.num)
 		.then((data) => {
@@ -224,7 +250,7 @@ app.get('/department/:num', (req, res) => {
 		});
 });
 
-app.get('/employees/delete/:empNum', (req, res) => {
+app.get('/employees/delete/:empNum', ensureLogin, (req, res) => {
 	dataService
 		.deleteEmployeeByNum(req.params.empNum)
 		.then(() => {
@@ -236,7 +262,7 @@ app.get('/employees/delete/:empNum', (req, res) => {
 		});
 });
 
-app.get('/images/', (req, res) => {
+app.get('/images/', ensureLogin, (req, res) => {
 	const response = {};
 	fs.readdir(path.join(__dirname, '/public/images/uploaded'), function(err, items) {
 		if (err) {
@@ -248,11 +274,11 @@ app.get('/images/', (req, res) => {
 	});
 });
 
-app.post('/images/add', upload.single('imageFile'), (req, res) => {
+app.post('/images/add', ensureLogin, upload.single('imageFile'), (req, res) => {
 	res.redirect('/images');
 });
 
-app.post('/employees/add', (req, res) => {
+app.post('/employees/add', ensureLogin, (req, res) => {
 	// console.log(req.body);
 	dataService
 		.addEmployee(req.body)
@@ -265,7 +291,7 @@ app.post('/employees/add', (req, res) => {
 		});
 });
 
-app.post('/employee/update', (req, res) => {
+app.post('/employee/update', ensureLogin, (req, res) => {
 	console.log(req.body);
 	dataService
 		.updateEmployee(req.body)
@@ -277,7 +303,7 @@ app.post('/employee/update', (req, res) => {
 		});
 });
 
-app.post('/departments/add', (req, res) => {
+app.post('/departments/add', ensureLogin, (req, res) => {
 	// console.log(req.body);
 	dataService
 		.addDepartment(req.body)
@@ -290,7 +316,7 @@ app.post('/departments/add', (req, res) => {
 		});
 });
 
-app.post('/department/update', (req, res) => {
+app.post('/department/update', ensureLogin, (req, res) => {
 	console.log(req.body);
 	dataService
 		.updateDeparment(req.body)
@@ -302,12 +328,58 @@ app.post('/department/update', (req, res) => {
 		});
 });
 
+app.get('/userHistory', ensureLogin, (req, res) => {
+	res.render('userHistory', {});
+});
+
+app.get('/login', (req, res) => {
+	res.render('login', {});
+});
+
+app.get('/register', (req, res) => {
+	res.render('register', {});
+});
+
+app.post('/register', (req, res) => {
+	dataServiceAuth
+		.registerUser(req.body)
+		.then(() => {
+			res.render('register', { successMessage: 'User created' });
+		})
+		.catch((err) => {
+			res.render('register', { errorMessage: err, userName: req.body.userName });
+		});
+});
+
+app.post('/login', (req, res) => {
+	req.body.userAgent = req.get('User-Agent');
+	dataServiceAuth
+		.checkUser(req.body)
+		.then((user) => {
+			req.session.user = {
+				userName: user.userName,
+				email: user.email,
+				loginHistory: user.loginHistory
+			};
+			res.redirect('/employees');
+		})
+		.catch((err) => {
+			res.render('login', { errorMessage: err, userName: req.body.userName });
+		});
+});
+
+app.get('/logout', function(req, res) {
+	req.session.reset();
+	res.redirect('/login');
+});
+
 app.use((req, res) => {
 	res.status(404).sendFile('/views/404.html', options);
 });
 
 dataService
 	.initialize()
+	.then(dataServiceAuth.initialize)
 	.then(() => {
 		app.listen(HTTP_PORT, () => {
 			console.log('app is running');
@@ -316,3 +388,9 @@ dataService
 	.catch((err) => {
 		console.log(err);
 	});
+
+// mongo :
+// user : smapro
+// pass : QLxIGShC9h6mhT1O
+
+//mongodb+srv://smapro:<password>@web322-a6.mm7s3.mongodb.net/<dbname>?retryWrites=true&w=majority
